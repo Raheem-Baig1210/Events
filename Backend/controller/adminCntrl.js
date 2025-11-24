@@ -1,5 +1,6 @@
 const adminMdl = require("../models/adminMdl")
 const userMdl = require("../models/userMdl")
+const Booking = require("../models/booking");
 const {responseGenerator, hashpassword, comparepassword, generateTokens} = require("../utils/utils");
 const { default: mongoose } = require("mongoose");
 
@@ -94,9 +95,46 @@ const loginUser = async(req,res)=>{
     }
 }
 
+
+const  createBooking = async (req, res) => {
+  try {
+    console.log("Request Body:", req.body); // Debugging line
+    const { eventId, userId, seats } = req.body;
+
+    if (!eventId || !userId || !seats) {
+      return res.status(400).json({ message: "Missing fields" });
+    }
+    console.log("Creating booking with:", { eventId, userId, seats }); // Debugging line
+    const booking = new Booking({
+      eventId,
+      userId,
+      seats,
+    });
+    // console.log("Booking instance created:", booking); // Debugging line
+
+    await booking.save();
+    // console.log("Booking created:", booking); // Debugging line
+
+    res.status(201).json({
+      success: true,
+      message: "Booking stored successfully",
+      booking,
+    });
+  } catch (err) {
+    res.status(500).json({
+      success: false,
+      message: "Server error",
+      error: err.message,
+    });
+  }
+};
+
+
+
 module.exports={
     registerAdmin, 
     loginAdmin,
     registerUser,
     loginUser,
+    createBooking
 }
